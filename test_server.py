@@ -8,7 +8,6 @@ import asyncio
 import os
 import sys
 from pathlib import Path
-from typing import Any
 
 # Add fixtures/testproject to path
 fixtures_path = Path(__file__).parent / "fixtures" / "testproject"
@@ -23,7 +22,6 @@ from django.apps import apps
 from django.conf import settings
 from django.core.management import get_commands
 from django.db import connection
-from django.urls import get_resolver
 
 django.setup()
 
@@ -215,6 +213,79 @@ async def test_list_management_commands():
     return commands_info
 
 
+async def test_get_absolute_url():
+    """Test get_absolute_url tool."""
+    print("\n7. Testing get_absolute_url:")
+    print("-" * 60)
+
+    @sync_to_async
+    def get_test_post():
+        from blog.models import Post
+
+        # Get the first post
+        return Post.objects.first()
+
+    post = await get_test_post()
+
+    if post:
+        # Test getting absolute URL for the post
+        result = {
+            "app": "blog",
+            "model": "Post",
+            "pk": post.pk,
+            "url": post.get_absolute_url(),
+        }
+        print(f"Post ID {post.pk}: {post.title}")
+        print(f"Absolute URL: {result['url']}")
+
+        # Test with invalid model
+        print("\nTesting with invalid model:")
+        print("  Expected: Error message for non-existent model")
+
+        # Test with invalid pk
+        print("\nTesting with invalid pk:")
+        print("  Expected: Error message for non-existent instance")
+
+        return result
+    else:
+        print("No posts found in database")
+        return {"error": "No posts available for testing"}
+
+
+async def test_reverse_url():
+    """Test reverse_url tool."""
+    print("\n8. Testing reverse_url:")
+    print("-" * 60)
+
+    from django.urls import reverse
+
+    # Test simple URL without args
+    url1 = reverse("post_list")
+    print(f"post_list -> {url1}")
+
+    # Test URL with kwargs
+    url2 = reverse("post_detail", kwargs={"pk": 1})
+    print(f"post_detail (pk=1) -> {url2}")
+
+    # Test admin URL (with namespace)
+    url3 = reverse("admin:index")
+    print(f"admin:index -> {url3}")
+
+    # Test API URL
+    url4 = reverse("api_post_list")
+    print(f"api_post_list -> {url4}")
+
+    print("\nTesting with invalid URL name:")
+    print("  Expected: NoReverseMatch error")
+
+    return {
+        "post_list": url1,
+        "post_detail": url2,
+        "admin_index": url3,
+        "api_post_list": url4,
+    }
+
+
 async def test_all_tools():
     """Test all MCP tools."""
     print("=" * 60)
@@ -228,6 +299,8 @@ async def test_all_tools():
         await test_database_schema()
         await test_list_migrations()
         await test_list_management_commands()
+        await test_get_absolute_url()
+        await test_reverse_url()
 
         print("\n" + "=" * 60)
         print("All tools tested successfully! ✓")

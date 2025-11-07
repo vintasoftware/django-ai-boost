@@ -3,7 +3,6 @@ from __future__ import annotations
 import logging
 import os
 import sys
-from pathlib import Path
 from typing import Any
 
 import django
@@ -339,6 +338,95 @@ async def list_management_commands() -> list[dict[str, Any]]:
         )
 
     return commands_info
+
+
+@mcp.tool()
+async def get_absolute_url(
+    app_label: str, model_name: str, pk: int | str
+) -> dict[str, Any]:
+    """
+    Get the absolute URL for a specific model instance.
+
+    Args:
+        app_label: The app label (e.g., "blog")
+        model_name: The model name (e.g., "Post")
+        pk: The primary key of the instance
+
+    Returns:
+        Dictionary containing the absolute URL or error message.
+    """
+
+    @sync_to_async
+    def get_url():
+        try:
+            model = apps.get_model(app_label, model_name)
+        except LookupError:
+            return {"error": f"Model '{app_label}.{model_name}' not found"}
+
+        try:
+            instance = model.objects.get(pk=pk)
+        except model.DoesNotExist:
+            return {
+                "error": f"Instance with pk={pk} not found in {app_label}.{model_name}"
+            }
+        except Exception as e:
+            return {"error": f"Error fetching instance: {str(e)}"}
+
+        if hasattr(instance, "get_absolute_url") and callable(
+            getattr(instance, "get_absolute_url")
+        ):
+            try:
+                url = instance.get_absolute_url()
+                return {
+                    "app": app_label,
+                    "model": model_name,
+                    "pk": pk,
+                    "url": url,
+                }
+            except Exception as e:
+                return {"error": f"Error calling get_absolute_url(): {str(e)}"}
+        else:
+            return {
+                "error": f"Model {app_label}.{model_name} does not have a get_absolute_url() method"
+            }
+
+    return await get_url()
+
+
+@mcp.tool()
+async def reverse_url(
+    url_name: str, args: list[Any] | None = None, kwargs: dict[str, Any] | None = None
+) -> dict[str, Any]:
+    """
+    Reverse a URL pattern name to get its URL path.
+
+    Args:
+        url_name: The URL pattern name (e.g., "post_detail" or "admin:index")
+        args: Optional list of positional arguments for the URL
+        kwargs: Optional dictionary of keyword arguments for the URL
+
+    Returns:
+        Dictionary containing the reversed URL or error message.
+    """
+    from django.urls import reverse
+    from django.urls.exceptions import NoReverseMatch
+
+    try:
+        reverse_args = args if args else []
+        reverse_kwargs = kwargs if kwargs else {}
+
+        url = reverse(url_name, args=reverse_args, kwargs=reverse_kwargs)
+
+        return {
+            "url_name": url_name,
+            "url": url,
+            "args": args,
+            "kwargs": kwargs,
+        }
+    except NoReverseMatch as e:
+        return {"error": f"No reverse match found for '{url_name}': {str(e)}"}
+    except Exception as e:
+        return {"error": f"Error reversing URL: {str(e)}"}
 
 
 def run_server(settings_module: str | None = None, transport: str = "stdio"):
