@@ -3,7 +3,6 @@ Example Django settings for testing the MCP server.
 This is a minimal Django configuration for demonstration purposes.
 """
 
-import os
 from pathlib import Path
 
 # Build paths inside the project
