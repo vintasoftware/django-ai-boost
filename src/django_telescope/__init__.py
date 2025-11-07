@@ -1,11 +1,11 @@
-from django_mcp.server_fastmcp import run_server
+from django_telescope.server_fastmcp import run_server
 
 
 def main() -> None:
-    """Entry point for the django-mcp CLI."""
+    """Entry point for the django-telescope CLI."""
     import argparse
 
-    parser = argparse.ArgumentParser(description="Django MCP Server")
+    parser = argparse.ArgumentParser(description="Django Telescope Server")
     parser.add_argument(
         "--settings",
         help="Django settings module (e.g., myproject.settings)",

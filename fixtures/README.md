@@ -1,6 +1,6 @@
 # Test Fixtures
 
-This directory contains a simple Django test project for testing the django-mcp server.
+This directory contains a simple Django test project for testing the django-telescope server.
 
 ## Test Project Structure
 
@@ -38,14 +38,14 @@ To run the actual MCP server with this test project:
 
 ```bash
 # From the project root
-uv run django-mcp --settings testproject.settings
+uv run django-telescope --settings testproject.settings
 ```
 
 Make sure to add the fixtures/testproject directory to your Python path when using it in production:
 
 ```bash
 export PYTHONPATH="${PYTHONPATH}:./fixtures/testproject"
-uv run django-mcp --settings testproject.settings
+uv run django-telescope --settings testproject.settings
 ```
 
 ## Database

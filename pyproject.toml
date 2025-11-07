@@ -1,11 +1,13 @@
 [project]
-name = "django-mcp"
+name = "django-telescope"
 version = "0.1.0"
 description = "A Model Context Protocol (MCP) server for Django applications, inspired by Laravel Boost"
 readme = "README.md"
 authors = [
     { name = "Rai Siqueira", email = "rai93siqueira@gmail.com" }
 ]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
 requires-python = ">=3.12"
 dependencies = [
     "django>=4.2",
@@ -13,7 +15,7 @@ dependencies = [
 ]
 
 [project.scripts]
-django-mcp = "django_mcp:main"
+django-telescope = "django_telescope:main"
 
 [build-system]
 requires = ["hatchling"]
@@ -24,3 +26,7 @@ dev = [
     "pytest>=8.4.2",
     "ruff>=0.14.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/raisiqueira/django-telescope"
+Issues = "https://github.com/raisiqueira/django-telescope/issues"

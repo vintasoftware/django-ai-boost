@@ -17,7 +17,7 @@ from fastmcp import FastMCP
 logger = logging.getLogger(__name__)
 
 # Initialize FastMCP server
-mcp = FastMCP("Django MCP Server")
+mcp = FastMCP("Django Telescope Server")
 
 
 def initialize_django(settings_module: str | None = None) -> None:

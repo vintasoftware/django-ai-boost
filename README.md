@@ -1,4 +1,4 @@
-# Django MCP Server
+# Django Telescope
 
 A Model Context Protocol (MCP) server for Django applications, inspired by [Laravel Boost](https://github.com/laravel/boost). This server exposes Django project information through MCP tools, enabling AI assistants to better understand and interact with Django codebases.
 
@@ -39,10 +39,10 @@ A Model Context Protocol (MCP) server for Django applications, inspired by [Lara
 
 ```bash
 # Using uv (recommended)
-uv pip install django-mcp
+uv pip install django-telescope
 
 # Or with pip
-pip install django-mcp
+pip install django-telescope
 ```
 
 ### For Development
@@ -51,8 +51,8 @@ If you want to contribute or run the latest development version:
 
 ```bash
 # Clone the repository
-git clone https://github.com/vinta/django-mcp.git
-cd django-mcp
+git clone https://github.com/vinta/django-telescope.git
+cd django-telescope
 
 # Install uv if you haven't already
 # On macOS/Linux:
@@ -65,7 +65,7 @@ powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 uv sync --dev
 
 # Verify installation
-uv run django-mcp --help
+uv run django-telescope --help
 ```
 
 ## Usage
@@ -77,13 +77,13 @@ The server requires access to your Django project's settings:
 ```bash
 # Set the Django settings module
 export DJANGO_SETTINGS_MODULE=myproject.settings
-django-mcp
+django-telescope
 
 # Or specify settings directly
-django-mcp --settings myproject.settings
+django-telescope --settings myproject.settings
 
 # Run with SSE transport (default is stdio)
-django-mcp --settings myproject.settings --transport sse
+django-telescope --settings myproject.settings --transport sse
 ```
 
 ## AI Tools Setup
@@ -99,7 +99,7 @@ Add to your Claude Desktop configuration:
 {
   "mcpServers": {
     "django": {
-      "command": "django-mcp",
+      "command": "django-telescope",
       "args": ["--settings", "myproject.settings"],
       "env": {
         "DJANGO_SETTINGS_MODULE": "myproject.settings",
@@ -120,9 +120,9 @@ Add to your Claude Desktop configuration:
 ```json
 {
   "mcpServers": {
-    "django-mcp": {
+    "django-telescope": {
       "command": "uv",
-      "args": ["run", "django-mcp", "--settings", "myproject.settings"],
+      "args": ["run", "django-telescope", "--settings", "myproject.settings"],
       "env": {
         "DJANGO_SETTINGS_MODULE": "myproject.settings"
       }
@@ -144,7 +144,7 @@ OpenAI ChatGPT Desktop supports MCP servers. Add to your configuration file:
 {
   "mcpServers": {
     "django": {
-      "command": "django-mcp",
+      "command": "django-telescope",
       "args": ["--settings", "myproject.settings"],
       "env": {
         "DJANGO_SETTINGS_MODULE": "myproject.settings"
@@ -163,7 +163,7 @@ OpenAI ChatGPT Desktop supports MCP servers. Add to your configuration file:
 ```json
 {
   "django": {
-    "command": "django-mcp",
+    "command": "django-telescope",
     "args": ["--settings", "myproject.settings"],
     "env": {
       "DJANGO_SETTINGS_MODULE": "myproject.settings"
@@ -180,7 +180,7 @@ Add to your Zed MCP configuration (`~/.config/zed/mcp.json`):
 {
   "servers": {
     "django": {
-      "command": "django-mcp",
+      "command": "django-telescope",
       "args": ["--settings", "myproject.settings"],
       "env": {
         "DJANGO_SETTINGS_MODULE": "myproject.settings"
@@ -196,10 +196,10 @@ For any MCP-compatible client, you can run the server manually:
 
 ```bash
 # Standard I/O transport (default)
-django-mcp --settings myproject.settings
+django-telescope --settings myproject.settings
 
 # Server-Sent Events transport
-django-mcp --settings myproject.settings --transport sse
+django-telescope --settings myproject.settings --transport sse
 ```
 
 ## Available Tools
@@ -267,7 +267,7 @@ uv run python test_server.py
 
 # Run the MCP server with the test project
 export PYTHONPATH="${PYTHONPATH}:./fixtures/testproject"
-uv run django-mcp --settings testproject.settings
+uv run django-telescope --settings testproject.settings
 
 # Run linter
 uv run ruff check .
@@ -289,7 +289,7 @@ Make sure you've set the `DJANGO_SETTINGS_MODULE` environment variable or used t
 
 ```bash
 export DJANGO_SETTINGS_MODULE=myproject.settings
-django-mcp
+django-telescope
 ```
 
 ### PYTHONPATH Issues
@@ -298,7 +298,7 @@ If Django can't find your project modules, add your project directory to PYTHONP
 
 ```bash
 export PYTHONPATH="${PYTHONPATH}:/path/to/your/project"
-django-mcp --settings myproject.settings
+django-telescope --settings myproject.settings
 ```
 
 Or in your MCP client configuration:
@@ -314,12 +314,12 @@ Or in your MCP client configuration:
 
 ### MCP Server Not Connecting
 
-1. Check that the `django-mcp` command is accessible in your PATH
+1. Check that the `django-telescope` command is accessible in your PATH
 2. Verify your MCP client configuration file syntax is valid JSON
 3. Check the logs in your AI tool (usually in settings or help menu)
 4. Try running the server manually to see any error messages:
    ```bash
-   django-mcp --settings myproject.settings
+   django-telescope --settings myproject.settings
    ```
 
 ### Database Connection Issues
@@ -349,8 +349,8 @@ We welcome contributions from the community! Whether it's bug fixes, new feature
 1. **Fork the repository** on GitHub
 2. **Clone your fork** locally:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/django-mcp.git
-   cd django-mcp
+   git clone https://github.com/YOUR_USERNAME/django-telescope.git
+   cd django-telescope
    ```
 3. **Install development dependencies**:
    ```bash
@@ -384,7 +384,7 @@ We welcome contributions from the community! Whether it's bug fixes, new feature
 
    # Test with the fixture project
    export PYTHONPATH="${PYTHONPATH}:./fixtures/testproject"
-   uv run django-mcp --settings testproject.settings
+   uv run django-telescope --settings testproject.settings
    ```
 4. **Commit your changes**:
    ```bash
