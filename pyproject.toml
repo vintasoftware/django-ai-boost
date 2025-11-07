@@ -1,6 +1,6 @@
 [project]
 name = "django-telescope"
-version = "0.1.0"
+version = "0.1.1"
 description = "A Model Context Protocol (MCP) server for Django applications, inspired by Laravel Boost"
 readme = "README.md"
 authors = [
@@ -13,6 +13,9 @@ dependencies = [
     "django>=4.2",
     "fastmcp>=2.12.4",
 ]
+
+[tool.mcp]
+name = "io.github.raisiqueira/django-telescope"
 
 [project.scripts]
 django-telescope = "django_telescope:main"
