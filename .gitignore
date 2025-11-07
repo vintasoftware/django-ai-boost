@@ -15,3 +15,5 @@ fixtures/testproject/db.sqlite3
 fixtures/testproject/django.log
 *.sqlite3
 *.log
+.mcpregistry_github_token
+.mcpregistry_registry_token
