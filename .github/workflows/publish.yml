@@ -102,54 +102,54 @@ jobs:
 
   # Job 4: Publish to MCP Registry
   # Runs after successful PyPI publication
-  publish-to-mcp-registry:
-    name: Publish to MCP Registry
-    needs: [publish-to-pypi]
-    runs-on: ubuntu-latest
+  # publish-to-mcp-registry:
+  #   name: Publish to MCP Registry
+  #   needs: [publish-to-pypi]
+  #   runs-on: ubuntu-latest
 
-    # Required permission for OIDC authentication with MCP Registry
-    permissions:
-      id-token: write
-      contents: read
+  #   # Required permission for OIDC authentication with MCP Registry
+  #   permissions:
+  #     id-token: write
+  #     contents: read
 
-    steps:
-      # Check out the repository to access server.json
-      - name: Check out repository
-        uses: actions/checkout@v4
+  #   steps:
+  #     # Check out the repository to access server.json
+  #     - name: Check out repository
+  #       uses: actions/checkout@v4
 
-      # Extract version from git tag (removes 'v' prefix)
-      # e.g., v0.1.1 -> 0.1.1
-      - name: Extract version from tag
-        id: version
-        run: |
-          VERSION=${GITHUB_REF#refs/tags/v}
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Publishing version: $VERSION"
+  #     # Extract version from git tag (removes 'v' prefix)
+  #     # e.g., v0.1.1 -> 0.1.1
+  #     - name: Extract version from tag
+  #       id: version
+  #       run: |
+  #         VERSION=${GITHUB_REF#refs/tags/v}
+  #         echo "version=$VERSION" >> $GITHUB_OUTPUT
+  #         echo "Publishing version: $VERSION"
 
-      # Update server.json with the current version
-      # This ensures the MCP registry knows which PyPI version to use
-      - name: Update server.json version
-        run: |
-          VERSION="${{ steps.version.outputs.version }}"
-          # Update both top-level version and package version
-          sed -i "s/\"version\": \"[^\"]*\"/\"version\": \"$VERSION\"/g" server.json
-          echo "Updated server.json:"
-          cat server.json
+  #     # Update server.json with the current version
+  #     # This ensures the MCP registry knows which PyPI version to use
+  #     - name: Update server.json version
+  #       run: |
+  #         VERSION="${{ steps.version.outputs.version }}"
+  #         # Update both top-level version and package version
+  #         sed -i "s/\"version\": \"[^\"]*\"/\"version\": \"$VERSION\"/g" server.json
+  #         echo "Updated server.json:"
+  #         cat server.json
 
-      # Install MCP Publisher CLI
-      # Downloads the latest release from GitHub
-      - name: Install MCP Publisher
-        run: |
-          curl -fsSL https://github.com/modelcontextprotocol/publisher/releases/latest/download/mcp-publisher-linux-amd64 -o mcp-publisher
-          chmod +x mcp-publisher
-          ./mcp-publisher --version
+  #     # Install MCP Publisher CLI
+  #     # Downloads the latest release from GitHub
+  #     - name: Install MCP Publisher
+  #       run: |
+  #         curl -fsSL https://github.com/modelcontextprotocol/publisher/releases/latest/download/mcp-publisher-linux-amd64 -o mcp-publisher
+  #         chmod +x mcp-publisher
+  #         ./mcp-publisher --version
 
-      # Authenticate with GitHub using OIDC
-      # No secrets needed - uses GitHub's identity token
-      - name: Login to MCP Registry
-        run: ./mcp-publisher login github-oidc
+  #     # Authenticate with GitHub using OIDC
+  #     # No secrets needed - uses GitHub's identity token
+  #     - name: Login to MCP Registry
+  #       run: ./mcp-publisher login github-oidc
 
-      # Publish the server to the MCP Registry
-      # This makes it discoverable at registry.modelcontextprotocol.io
-      - name: Publish to MCP Registry
-        run: ./mcp-publisher publish
+  #     # Publish the server to the MCP Registry
+  #     # This makes it discoverable at registry.modelcontextprotocol.io
+  #     - name: Publish to MCP Registry
+  #       run: ./mcp-publisher publish
