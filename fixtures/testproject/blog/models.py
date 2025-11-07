@@ -4,6 +4,7 @@ Blog app models for testing django-mcp server.
 
 from django.contrib.auth.models import User
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 
 
@@ -56,6 +57,10 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+
+    def get_absolute_url(self):
+        """Return the absolute URL for this post."""
+        return reverse("post_detail", kwargs={"pk": self.pk})
 
     def publish(self):
         """Publish the post."""
