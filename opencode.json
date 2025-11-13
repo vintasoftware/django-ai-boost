@@ -1,13 +1,16 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "mcp": {
-    "django-mcp": {
+    "local-django-telescope": {
       "type": "local",
-      "command": "uv",
-      "args": ["run", "django-mcp", "--settings", "testproject.settings"],
-      "env": {
-        "PYTHONPATH": "./fixtures/testproject"
-      }
+      "command": [
+        "/Users/rai/Developer/vinta/django-mcp/.venv/bin/django-telescope",
+        "--settings",
+        "testproject.settings"
+      ],
+      "environment": {
+        "PYTHONPATH": "/Users/rai/Developer/vinta/django-mcp/fixtures/testproject"
+      },
     }
   }
 }

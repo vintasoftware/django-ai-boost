@@ -429,6 +429,43 @@ async def reverse_url(
         return {"error": f"Error reversing URL: {str(e)}"}
 
 
+@mcp.prompt()
+async def search_django_docs(topic: str) -> str:
+    """
+    Generate a prompt to help search for specific topics in Django documentation.
+
+    Args:
+        topic: The Django topic or feature to search for (e.g., "models", "queryset", "migrations", "authentication")
+
+    Returns:
+        A formatted prompt to help the user search Django documentation effectively.
+    """
+    django_version = django.get_version()
+    major_version = ".".join(django_version.split(".")[:2])
+
+    prompt = f"""I need help finding information about "{topic}" in Django documentation.
+
+Current Django version: {django_version}
+
+Please help me by:
+1. Searching the official Django documentation at https://docs.djangoproject.com/en/{major_version}/
+2. Providing relevant links to documentation pages about "{topic}"
+3. Explaining key concepts and best practices
+4. Showing code examples if applicable
+
+Focus on documentation that is relevant to Django {major_version} to ensure compatibility with my project.
+
+Key areas to consider:
+- Core concepts and usage patterns
+- API reference and method signatures
+- Common pitfalls and solutions
+- Related topics that might be helpful
+
+Please provide clear, actionable information with direct links to the official documentation."""
+
+    return prompt
+
+
 def run_server(settings_module: str | None = None, transport: str = "stdio"):
     """
     Run the Django MCP server.
