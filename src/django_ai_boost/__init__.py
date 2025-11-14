@@ -1,11 +1,11 @@
-from django_telescope.server_fastmcp import run_server
+from django_ai_boost.server_fastmcp import run_server
 
 
 def main() -> None:
-    """Entry point for the django-telescope CLI."""
+    """Entry point for the django-ai-boost CLI."""
     import argparse
 
-    parser = argparse.ArgumentParser(description="Django Telescope Server")
+    parser = argparse.ArgumentParser(description="Django AI Boost Server")
     parser.add_argument(
         "--settings",
         help="Django settings module (e.g., myproject.settings)",

@@ -1,16 +1,16 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
-  "name": "io.github.raisiqueira/django-telescope",
+  "name": "io.github.raisiqueira/django-ai-boost",
   "description": "A Model Context Protocol (MCP) server for Django applications, inspired by Laravel Boost",
   "repository": {
-    "url": "https://github.com/raisiqueira/django-telescope",
+    "url": "https://github.com/raisiqueira/django-ai-boost",
     "source": "github"
   },
   "version": "0.1.3",
   "packages": [
     {
       "registryType": "pypi",
-      "identifier": "django-telescope",
+      "identifier": "django-ai-boost",
       "version": "0.1.2",
       "transport": {
         "type": "stdio"

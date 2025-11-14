@@ -1,6 +1,6 @@
-# Django Telescope
+# Django AI Boost
 
-<!-- mcp-name: io.github.raisiqueira/django-telescope -->
+<!-- mcp-name: io.github.raisiqueira/django-ai-boost -->
 
 A Model Context Protocol (MCP) server for Django applications, inspired by [Laravel Boost](https://github.com/laravel/boost). This server exposes Django project information through MCP tools, enabling AI assistants to better understand and interact with Django codebases.
 
@@ -41,11 +41,11 @@ A Model Context Protocol (MCP) server for Django applications, inspired by [Lara
 <details>
 <summary>Click to view screenshots</summary>
 
-### Django Telescope in Action
+### Django AI Boost in Action
 
-![Django Telescope Example](./assets/example_mcp01.png)
+![Django AI Boost Example](./assets/example_mcp01.png)
 
-*Django Telescope MCP server providing Django project introspection through AI assistants (Example using [OpenCode](https://opencode.ai/))*
+*Django AI Boost MCP server providing Django project introspection through AI assistants (Example using [OpenCode](https://opencode.ai/))*
 
 </details>
 
@@ -55,10 +55,10 @@ A Model Context Protocol (MCP) server for Django applications, inspired by [Lara
 
 ```bash
 # Using uv (recommended)
-uv pip install django-telescope
+uv pip install django-ai-boost
 
 # Or with pip
-pip install django-telescope
+pip install django-ai-boost
 ```
 
 ### For Development
@@ -67,8 +67,8 @@ If you want to contribute or run the latest development version:
 
 ```bash
 # Clone the repository
-git clone https://github.com/vinta/django-telescope.git
-cd django-telescope
+git clone https://github.com/vinta/django-ai-boost.git
+cd django-ai-boost
 
 # Install uv if you haven't already
 # On macOS/Linux:
@@ -81,7 +81,7 @@ powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 uv sync --dev
 
 # Verify installation
-uv run django-telescope --help
+uv run django-ai-boost --help
 ```
 
 ## Usage
@@ -93,13 +93,13 @@ The server requires access to your Django project's settings:
 ```bash
 # Set the Django settings module
 export DJANGO_SETTINGS_MODULE=myproject.settings
-django-telescope
+django-ai-boost
 
 # Or specify settings directly
-django-telescope --settings myproject.settings
+django-ai-boost --settings myproject.settings
 
 # Run with SSE transport (default is stdio)
-django-telescope --settings myproject.settings --transport sse
+django-ai-boost --settings myproject.settings --transport sse
 ```
 
 ## AI Tools Setup
@@ -115,7 +115,7 @@ Add to your Claude Desktop configuration:
 {
   "mcpServers": {
     "django": {
-      "command": "django-telescope",
+      "command": "django-ai-boost",
       "args": ["--settings", "myproject.settings"],
       "env": {
         "DJANGO_SETTINGS_MODULE": "myproject.settings",
@@ -136,9 +136,9 @@ Add to your Claude Desktop configuration:
 ```json
 {
   "mcpServers": {
-    "django-telescope": {
+    "django-ai-boost": {
       "command": "uv",
-      "args": ["run", "django-telescope", "--settings", "myproject.settings"],
+      "args": ["run", "django-ai-boost", "--settings", "myproject.settings"],
       "env": {
         "DJANGO_SETTINGS_MODULE": "myproject.settings"
       }
@@ -160,7 +160,7 @@ OpenAI ChatGPT Desktop supports MCP servers. Add to your configuration file:
 {
   "mcpServers": {
     "django": {
-      "command": "django-telescope",
+      "command": "django-ai-boost",
       "args": ["--settings", "myproject.settings"],
       "env": {
         "DJANGO_SETTINGS_MODULE": "myproject.settings"
@@ -179,7 +179,7 @@ OpenAI ChatGPT Desktop supports MCP servers. Add to your configuration file:
 ```json
 {
   "django": {
-    "command": "django-telescope",
+    "command": "django-ai-boost",
     "args": ["--settings", "myproject.settings"],
     "env": {
       "DJANGO_SETTINGS_MODULE": "myproject.settings"
@@ -196,7 +196,7 @@ Add to your Zed MCP configuration (`~/.config/zed/mcp.json`):
 {
   "servers": {
     "django": {
-      "command": "django-telescope",
+      "command": "django-ai-boost",
       "args": ["--settings", "myproject.settings"],
       "env": {
         "DJANGO_SETTINGS_MODULE": "myproject.settings"
@@ -212,10 +212,10 @@ For any MCP-compatible client, you can run the server manually:
 
 ```bash
 # Standard I/O transport (default)
-django-telescope --settings myproject.settings
+django-ai-boost --settings myproject.settings
 
 # Server-Sent Events transport
-django-telescope --settings myproject.settings --transport sse
+django-ai-boost --settings myproject.settings --transport sse
 ```
 
 ## Available Tools and Prompts
@@ -318,7 +318,7 @@ uv run python test_server.py
 
 # Run the MCP server with the test project
 export PYTHONPATH="${PYTHONPATH}:./fixtures/testproject"
-uv run django-telescope --settings testproject.settings
+uv run django-ai-boost --settings testproject.settings
 
 # Run linter
 uv run ruff check .
@@ -340,7 +340,7 @@ Make sure you've set the `DJANGO_SETTINGS_MODULE` environment variable or used t
 
 ```bash
 export DJANGO_SETTINGS_MODULE=myproject.settings
-django-telescope
+django-ai-boost
 ```
 
 ### PYTHONPATH Issues
@@ -349,7 +349,7 @@ If Django can't find your project modules, add your project directory to PYTHONP
 
 ```bash
 export PYTHONPATH="${PYTHONPATH}:/path/to/your/project"
-django-telescope --settings myproject.settings
+django-ai-boost --settings myproject.settings
 ```
 
 Or in your MCP client configuration:
@@ -365,12 +365,12 @@ Or in your MCP client configuration:
 
 ### MCP Server Not Connecting
 
-1. Check that the `django-telescope` command is accessible in your PATH
+1. Check that the `django-ai-boost` command is accessible in your PATH
 2. Verify your MCP client configuration file syntax is valid JSON
 3. Check the logs in your AI tool (usually in settings or help menu)
 4. Try running the server manually to see any error messages:
    ```bash
-   django-telescope --settings myproject.settings
+   django-ai-boost --settings myproject.settings
    ```
 
 ### Database Connection Issues
@@ -400,8 +400,8 @@ We welcome contributions from the community! Whether it's bug fixes, new feature
 1. **Fork the repository** on GitHub
 2. **Clone your fork** locally:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/django-telescope.git
-   cd django-telescope
+   git clone https://github.com/YOUR_USERNAME/django-ai-boost.git
+   cd django-ai-boost
    ```
 3. **Install development dependencies**:
    ```bash
@@ -435,7 +435,7 @@ We welcome contributions from the community! Whether it's bug fixes, new feature
 
    # Test with the fixture project
    export PYTHONPATH="${PYTHONPATH}:./fixtures/testproject"
-   uv run django-telescope --settings testproject.settings
+   uv run django-ai-boost --settings testproject.settings
    ```
 4. **Commit your changes**:
    ```bash
