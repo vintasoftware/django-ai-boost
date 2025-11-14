@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Test script to verify Django MCP server tools work correctly.
+Test script to verify Django AI Boost MCP server tools work correctly.
 Run from project root: python test_server.py
 """
 
@@ -289,7 +289,7 @@ async def test_reverse_url():
 async def test_all_tools():
     """Test all MCP tools."""
     print("=" * 60)
-    print("Testing Django MCP Server Tools")
+    print("Testing Django AI Boost MCP Server Tools")
     print("=" * 60)
 
     try:

@@ -21,7 +21,7 @@ import django
 django.setup()
 
 # Import the server and inspect the prompt
-from django_telescope.server_fastmcp import mcp
+from django_ai_boost.server_fastmcp import mcp
 
 
 async def test_search_django_docs_prompt():
@@ -60,7 +60,7 @@ async def test_search_django_docs_prompt():
     print("\nSample output for topic='models':")
     print("-" * 80)
     # Access the underlying function through the prompt
-    from django_telescope.server_fastmcp import search_django_docs
+    from django_ai_boost.server_fastmcp import search_django_docs
 
     # Get the underlying function
     result = await search_django_docs.fn("models")

@@ -81,7 +81,7 @@ jobs:
     # You can configure this environment in GitHub to require manual approval
     environment:
       name: pypi
-      url: https://pypi.org/p/django-telescope
+      url: https://pypi.org/p/django-ai-boost
 
     # Required permission for OIDC (Trusted Publisher authentication)
     permissions:

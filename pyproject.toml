@@ -1,5 +1,5 @@
 [project]
-name = "django-telescope"
+name = "django-ai-boost"
 version = "0.1.3"
 description = "A Model Context Protocol (MCP) server for Django applications, inspired by Laravel Boost"
 readme = "README.md"
@@ -15,10 +15,10 @@ dependencies = [
 ]
 
 [tool.mcp]
-name = "io.github.raisiqueira/django-telescope"
+name = "io.github.raisiqueira/django-ai-boost"
 
 [project.scripts]
-django-telescope = "django_telescope:main"
+django-ai-boost = "django_ai_boost:main"
 
 [build-system]
 requires = ["hatchling"]
@@ -31,5 +31,5 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/raisiqueira/django-telescope"
-Issues = "https://github.com/raisiqueira/django-telescope/issues"
+Homepage = "https://github.com/raisiqueira/django-ai-boost"
+Issues = "https://github.com/raisiqueira/django-ai-boost/issues"
