@@ -6,12 +6,12 @@
     "url": "https://github.com/vintasoftware/django-ai-boost",
     "source": "github"
   },
-  "version": "0.3.0",
+  "version": "0.3.1",
   "packages": [
     {
       "registryType": "pypi",
       "identifier": "django-ai-boost",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "transport": {
         "type": "stdio"
       },

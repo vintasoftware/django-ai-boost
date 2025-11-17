@@ -13,6 +13,7 @@ A Model Context Protocol (MCP) server for Django applications, inspired by [Lara
   - [For Development](#for-development)
 - [Usage](#usage)
 - [AI Tools Setup](#ai-tools-setup)
+  - [Cursor](#cursor)
   - [Claude Desktop](#claude-desktop)
   - [Claude Code (VS Code)](#claude-code-vs-code-extension)
   - [OpenAI ChatGPT Desktop](#openai-chatgpt-desktop-with-mcp)
@@ -103,6 +104,33 @@ django-ai-boost --settings myproject.settings --transport sse
 ```
 
 ## AI Tools Setup
+
+### Cursor
+
+[Cursor](https://cursor.com/) is a popular AI-powered code editor with built-in MCP support.
+
+1. Open Cursor Settings (Cmd/Ctrl + Shift + J)
+2. Navigate to the "Tools & MCP" section
+3. Add the Django AI Boost server configuration:
+
+```json
+{
+  "mcpServers": {
+    "django-ai-boost": {
+      "command": "django-ai-boost",
+      "args": ["--settings", "myproject.settings"],
+      "env": {
+        "DJANGO_SETTINGS_MODULE": "myproject.settings",
+        "PYTHONPATH": "/path/to/your/django/project"
+      }
+    }
+  }
+}
+```
+
+**Note**: Replace `/path/to/your/django/project` with the actual path to your Django project root directory.
+
+For more information, see the [Cursor MCP documentation](https://cursor.com/docs/context/mcp).
 
 ### Claude Desktop
 
