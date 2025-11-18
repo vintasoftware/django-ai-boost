@@ -15,7 +15,7 @@ A Model Context Protocol (MCP) server for Django applications, inspired by [Lara
 - [AI Tools Setup](#ai-tools-setup)
   - [Cursor](#cursor)
   - [Claude Desktop](#claude-desktop)
-  - [Github Copilot (VS Code)](#gh-copilot-vs-code)
+  - [Github Copilot (VS Code)](#github-copilot-vs-code-extension)
   - [Claude Code (VS Code)](#claude-code-vs-code-extension)
   - [OpenAI ChatGPT Desktop](#openai-chatgpt-desktop-with-mcp)
   - [Cline (VS Code)](#cline-vs-code-extension)
@@ -158,7 +158,7 @@ Add to your Claude Desktop configuration:
 **Note**: Make sure to replace `/path/to/your/django/project` with the actual path to your Django project root directory.
 
 
-### Claude Code (VS Code Extension)
+### Github Copilot (VS Code Extension)
 
 1. Install the Github Copilot Chat extension from VS Code marketplace
 2. Create or edit `.vscode/mcp.json` in your Django project root:
