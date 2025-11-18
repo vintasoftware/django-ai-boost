@@ -271,7 +271,7 @@ wheels = [
 
 [[package]]
 name = "django-ai-boost"
-version = "0.3.0"
+version = "0.3.1"
 source = { editable = "." }
 dependencies = [
     { name = "django" },

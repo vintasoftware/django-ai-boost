@@ -574,19 +574,29 @@ Please provide clear, actionable information with direct links to the official d
     return prompt
 
 
-def run_server(settings_module: str | None = None, transport: str = "stdio"):
+def run_server(
+    settings_module: str | None = None,
+    transport: str = "stdio",
+    host: str = "127.0.0.1",
+    port: int = 8000,
+):
     """
     Run the Django MCP server.
 
     Args:
         settings_module: Django settings module path
         transport: Transport type (stdio or sse)
+        host: Host to bind to for SSE transport (default: 127.0.0.1)
+        port: Port to bind to for SSE transport (default: 8000)
     """
     # Initialize Django before starting the server
     initialize_django(settings_module)
 
     # Run the FastMCP server
-    mcp.run(transport=transport)
+    if transport == "sse":
+        mcp.run(transport=transport, host=host, port=port)
+    else:
+        mcp.run(transport=transport)
 
 
 if __name__ == "__main__":

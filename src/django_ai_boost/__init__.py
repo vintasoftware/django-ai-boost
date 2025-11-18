@@ -17,7 +17,23 @@ def main() -> None:
         default="stdio",
         help="Transport type (default: stdio)",
     )
+    parser.add_argument(
+        "--host",
+        default="127.0.0.1",
+        help="Host to bind to for SSE transport (default: 127.0.0.1)",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=8000,
+        help="Port to bind to for SSE transport (default: 8000)",
+    )
 
     args = parser.parse_args()
 
-    run_server(settings_module=args.settings, transport=args.transport)
+    run_server(
+        settings_module=args.settings,
+        transport=args.transport,
+        host=args.host,
+        port=args.port,
+    )
