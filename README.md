@@ -15,6 +15,7 @@ A Model Context Protocol (MCP) server for Django applications, inspired by [Lara
 - [AI Tools Setup](#ai-tools-setup)
   - [Cursor](#cursor)
   - [Claude Desktop](#claude-desktop)
+  - [Github Copilot (VS Code)](#gh-copilot-vs-code)
   - [Claude Code (VS Code)](#claude-code-vs-code-extension)
   - [OpenAI ChatGPT Desktop](#openai-chatgpt-desktop-with-mcp)
   - [Cline (VS Code)](#cline-vs-code-extension)
@@ -155,6 +156,38 @@ Add to your Claude Desktop configuration:
 ```
 
 **Note**: Make sure to replace `/path/to/your/django/project` with the actual path to your Django project root directory.
+
+
+### Claude Code (VS Code Extension)
+
+1. Install the Github Copilot Chat extension from VS Code marketplace
+2. Create or edit `.vscode/mcp.json` in your Django project root:
+
+```json
+{
+"inputs": [
+  // The "inputs" section defines the inputs required for the MCP server configuration.
+  {
+    "type": "promptString"
+  }
+],
+"servers": {
+  // The "servers" section defines the MCP servers you want to use.
+  "django-ai-boost": {
+    "command": "uv",
+    "args": ["run", "django-ai-boost", "--settings", "myproject.settings"],
+    "env": {
+      "DJANGO_SETTINGS_MODULE": "myproject.settings"
+    }
+  }
+ }
+}
+```
+
+3. Click "Start" in the JSON
+   <img width="1182" height="642" alt="image" src="https://github.com/user-attachments/assets/9a0ea532-80bd-4bd7-bbd2-7d4afd726b32" />
+
+5. Github Copilot Code will automatically connect to the MCP server when you start a conversation in "Agent" mode.
 
 ### Claude Code (VS Code Extension)
 
