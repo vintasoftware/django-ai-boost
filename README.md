@@ -100,9 +100,17 @@ django-ai-boost
 # Or specify settings directly
 django-ai-boost --settings myproject.settings
 
-# Run with SSE transport (default is stdio)
+# Run with SSE transport (default is stdio, which doesn't use network ports)
 django-ai-boost --settings myproject.settings --transport sse
+
+# Run with SSE transport on a custom port (default port is 8000)
+django-ai-boost --settings myproject.settings --transport sse --port 3000
+
+# Run with SSE transport on custom host and port
+django-ai-boost --settings myproject.settings --transport sse --host 0.0.0.0 --port 8080
 ```
+
+**Note:** The stdio transport (default) communicates via standard input/output and does not use network ports. The `--port` and `--host` options only apply when using `--transport sse`.
 
 ## AI Tools Setup
 
@@ -272,11 +280,17 @@ Add to your Zed MCP configuration (`~/.config/zed/mcp.json`):
 For any MCP-compatible client, you can run the server manually:
 
 ```bash
-# Standard I/O transport (default)
+# Standard I/O transport (default, no network port)
 django-ai-boost --settings myproject.settings
 
-# Server-Sent Events transport
+# Server-Sent Events transport (default: 127.0.0.1:8000)
 django-ai-boost --settings myproject.settings --transport sse
+
+# SSE transport with custom port
+django-ai-boost --settings myproject.settings --transport sse --port 3000
+
+# SSE transport with custom host and port
+django-ai-boost --settings myproject.settings --transport sse --host 0.0.0.0 --port 8080
 ```
 
 ## Available Tools and Prompts
@@ -464,6 +478,17 @@ Or in your MCP client configuration:
 ### Database Connection Issues
 
 Ensure your Django database is properly configured and accessible. The MCP server needs the same database access as your Django application.
+
+### Port Already in Use (SSE Transport)
+
+If you see an error like "Address already in use" when using SSE transport, the default port 8000 is likely occupied by another service (such as your Django development server). Use a different port:
+
+```bash
+# Use a different port for the MCP server
+django-ai-boost --settings myproject.settings --transport sse --port 8001
+```
+
+**Note:** The stdio transport (default) does not use network ports and will not have this issue.
 
 ## Requirements
 
