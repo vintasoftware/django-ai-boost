@@ -21,7 +21,7 @@ A Model Context Protocol (MCP) server for Django applications, inspired by [Lara
   - [Cline (VS Code)](#cline-vs-code-extension)
   - [Zed Editor](#zed-editor)
   - [Generic MCP Client](#generic-mcp-client)
-- [Available Tools](#available-tools)
+- [Available Tools](#available-tools-and-prompts)
 - [Example Usage](#example-usage-with-ai-assistants)
 - [Development & Testing](#development--testing)
 - [Troubleshooting](#troubleshooting)
