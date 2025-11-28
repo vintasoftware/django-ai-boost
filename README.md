@@ -599,3 +599,9 @@ We're especially interested in:
 ### Code of Conduct
 
 Please be respectful and constructive in all interactions. We aim to maintain a welcoming and inclusive community.
+
+## Commercial Support
+
+[![alt text](https://avatars2.githubusercontent.com/u/5529080?s=80&v=4 "Vinta Logo")](https://www.vinta.com.br/)
+
+This project is maintained by [Vinta Software](https://www.vinta.com.br/). Our team of design and development experts is available to help your company launch successful Django-powered products. If you need any commercial support, feel free to get in touch: contact@vinta.com.br
