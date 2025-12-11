@@ -29,8 +29,12 @@ async def test_search_django_docs_prompt():
     print("Testing search_django_docs prompt registration...\n")
     print("=" * 80)
 
-    # List all registered prompts
-    prompts = await mcp._list_prompts()
+    # List all registered prompts - FastMCP 2.13+ requires context parameter
+    from fastmcp.server.middleware import MiddlewareContext
+    from mcp.types import ListPromptsRequest
+
+    context = MiddlewareContext(message=ListPromptsRequest())
+    prompts = await mcp._list_prompts(context)
     print(f"Found {len(prompts)} registered prompt(s):\n")
 
     for prompt in prompts:
