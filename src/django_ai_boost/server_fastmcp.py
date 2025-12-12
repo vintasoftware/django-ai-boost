@@ -107,16 +107,30 @@ async def get_setting(key: str) -> Any:
 
 
 @mcp.tool()
-async def list_models() -> list[dict[str, Any]]:
+async def list_models(app_labels: list[str] | None = None) -> dict[str, Any]:
     """
     List all Django models with their fields, types, and relationships.
 
+    Args:
+        app_labels: Optional list of app labels to filter (e.g., ["blog", "auth"]).
+                   If None, returns all models (may be truncated by some clients like PyCharm).
+
     Returns:
-        List of models with detailed field information.
+        Dictionary containing:
+        - total_count: Total number of models matching filter
+        - app_filter: Applied app filter (None if no filter)
+        - models: List of model information with detailed field information
     """
     models_info = []
 
-    for model in apps.get_models():
+    # Get all models, optionally filtered by app labels
+    all_models = apps.get_models()
+
+    # Filter by app labels if provided
+    if app_labels:
+        all_models = [m for m in all_models if m._meta.app_label in app_labels]
+
+    for model in all_models:
         app_label = model._meta.app_label
         model_name = model._meta.object_name
 
@@ -153,7 +167,11 @@ async def list_models() -> list[dict[str, Any]]:
             }
         )
 
-    return models_info
+    return {
+        "total_count": len(models_info),
+        "app_filter": app_labels,
+        "models": models_info,
+    }
 
 
 @mcp.tool()
