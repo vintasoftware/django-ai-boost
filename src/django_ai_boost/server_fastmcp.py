@@ -537,6 +537,127 @@ async def query_model(
     return await execute_query()
 
 
+@mcp.tool()
+async def run_check(
+    app_labels: list[str] | None = None,
+    tags: list[str] | None = None,
+    deploy: bool = False,
+    fail_level: str = "ERROR",
+    databases: list[str] | None = None,
+) -> dict[str, Any]:
+    """
+    Run Django system checks to identify potential problems in the project.
+
+    Args:
+        app_labels: Optional list of app labels to check (e.g., ["blog", "auth"])
+        tags: Optional list of check tags to run (e.g., ["models", "compatibility"])
+        deploy: Whether to include deployment checks (default: False)
+        fail_level: Minimum message level that causes the check to fail: "CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG" (default: "ERROR")
+        databases: Optional list of database aliases to check (e.g., ["default"])
+
+    Returns:
+        Dictionary containing check results with errors, warnings, and info messages.
+    """
+
+    @sync_to_async
+    def execute_checks():
+        from django.core.checks import run_checks
+        from django.core.checks.messages import (
+            DEBUG,
+            INFO,
+            WARNING,
+            ERROR,
+            CRITICAL,
+        )
+
+        try:
+            # Map fail_level string to Django check level constant
+            level_map = {
+                "DEBUG": DEBUG,
+                "INFO": INFO,
+                "WARNING": WARNING,
+                "ERROR": ERROR,
+                "CRITICAL": CRITICAL,
+            }
+            check_level = level_map.get(fail_level.upper(), ERROR)
+
+            # Get app_configs if app_labels provided
+            app_configs = None
+            if app_labels:
+                app_configs = [apps.get_app_config(label) for label in app_labels]
+
+            # Run the checks
+            messages = run_checks(
+                app_configs=app_configs,
+                tags=tags,
+                include_deployment_checks=deploy,
+                databases=databases or [],
+            )
+
+            # Organize messages by level
+            result = {
+                "success": True,
+                "checked_apps": app_labels or "all",
+                "tags": tags or "all",
+                "deploy_checks": deploy,
+                "fail_level": fail_level,
+                "total_issues": len(messages),
+                "critical": [],
+                "errors": [],
+                "warnings": [],
+                "info": [],
+                "debug": [],
+            }
+
+            # Categorize messages by level
+            for msg in messages:
+                message_dict = {
+                    "id": msg.id,
+                    "level": msg.level,
+                    "message": msg.msg,
+                    "hint": msg.hint or "",
+                    "obj": str(msg.obj) if msg.obj else "",
+                }
+
+                if msg.level >= CRITICAL:
+                    result["critical"].append(message_dict)
+                    result["success"] = False
+                elif msg.level >= ERROR:
+                    result["errors"].append(message_dict)
+                    if check_level <= ERROR:
+                        result["success"] = False
+                elif msg.level >= WARNING:
+                    result["warnings"].append(message_dict)
+                    if check_level <= WARNING:
+                        result["success"] = False
+                elif msg.level >= INFO:
+                    result["info"].append(message_dict)
+                    if check_level <= INFO:
+                        result["success"] = False
+                else:
+                    result["debug"].append(message_dict)
+                    if check_level <= DEBUG:
+                        result["success"] = False
+
+            # Add summary
+            result["summary"] = {
+                "critical_count": len(result["critical"]),
+                "error_count": len(result["errors"]),
+                "warning_count": len(result["warnings"]),
+                "info_count": len(result["info"]),
+                "debug_count": len(result["debug"]),
+            }
+
+            return result
+
+        except LookupError as e:
+            return {"error": f"App not found: {str(e)}"}
+        except Exception as e:
+            return {"error": f"Error running checks: {str(e)}"}
+
+    return await execute_checks()
+
+
 @mcp.prompt()
 async def search_django_docs(topic: str) -> str:
     """
