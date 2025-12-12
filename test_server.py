@@ -77,8 +77,11 @@ async def test_list_models():
     print("\n3. Testing list_models:")
     print("-" * 60)
 
+    # Test 1: List all models (no filter)
+    print("\nTest 3a: List all models (no filter)")
+    all_models = apps.get_models()
     models_info = []
-    for model in apps.get_models():
+    for model in all_models:
         app_label = model._meta.app_label
         model_name = model._meta.object_name
 
@@ -97,14 +100,89 @@ async def test_list_models():
             "fields": fields,
         })
 
-    print(f"Found {len(models_info)} models")
-    if models_info:
-        first_model = models_info[0]
+    result_all = {
+        "total_count": len(models_info),
+        "app_filter": None,
+        "models": models_info,
+    }
+
+    print(f"Found {result_all['total_count']} total models")
+    if result_all["models"]:
+        first_model = result_all["models"][0]
         print(f"Example: {first_model['app']}.{first_model['model']}")
         print(f"  Table: {first_model['db_table']}")
         print(f"  Fields: {len(first_model['fields'])}")
 
-    return models_info
+    # Test 2: Filter by single app
+    print("\nTest 3b: Filter by single app (blog)")
+    blog_models = [m for m in all_models if m._meta.app_label == "blog"]
+    blog_models_info = []
+    for model in blog_models:
+        app_label = model._meta.app_label
+        model_name = model._meta.object_name
+
+        fields = []
+        for field in model._meta.get_fields():
+            field_info = {
+                "name": field.name,
+                "type": field.__class__.__name__,
+            }
+            fields.append(field_info)
+
+        blog_models_info.append({
+            "app": app_label,
+            "model": model_name,
+            "db_table": model._meta.db_table,
+            "fields": fields,
+        })
+
+    result_blog = {
+        "total_count": len(blog_models_info),
+        "app_filter": ["blog"],
+        "models": blog_models_info,
+    }
+
+    print(f"Found {result_blog['total_count']} models in 'blog' app")
+    if result_blog["models"]:
+        for model in result_blog["models"]:
+            print(f"  - {model['app']}.{model['model']}")
+
+    # Test 3: Filter by multiple apps
+    print("\nTest 3c: Filter by multiple apps (blog, auth)")
+    filtered_models = [m for m in all_models if m._meta.app_label in ["blog", "auth"]]
+    filtered_models_info = []
+    for model in filtered_models:
+        app_label = model._meta.app_label
+        model_name = model._meta.object_name
+
+        fields = []
+        for field in model._meta.get_fields():
+            field_info = {
+                "name": field.name,
+                "type": field.__class__.__name__,
+            }
+            fields.append(field_info)
+
+        filtered_models_info.append({
+            "app": app_label,
+            "model": model_name,
+            "db_table": model._meta.db_table,
+            "fields": fields,
+        })
+
+    result_multiple = {
+        "total_count": len(filtered_models_info),
+        "app_filter": ["blog", "auth"],
+        "models": filtered_models_info,
+    }
+
+    print(f"Found {result_multiple['total_count']} models in 'blog' and 'auth' apps")
+    blog_count = sum(1 for m in result_multiple["models"] if m["app"] == "blog")
+    auth_count = sum(1 for m in result_multiple["models"] if m["app"] == "auth")
+    print(f"  - blog: {blog_count} models")
+    print(f"  - auth: {auth_count} models")
+
+    return result_all
 
 
 async def test_database_schema():

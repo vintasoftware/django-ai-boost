@@ -306,6 +306,11 @@ Retrieve any Django setting using dot notation (e.g., `DATABASES.default.ENGINE`
 ### 3. `list_models`
 List all Django models with fields, types, max_length, null/blank status, and relationships.
 
+**Arguments:**
+- `app_labels`: Optional list of app labels to filter (e.g., `["blog", "auth"]`). If not provided, returns all models.
+
+**Note**: For large projects, some MCP clients (like PyCharm) may truncate output due to display limits. Use the `app_labels` parameter to filter by specific apps to avoid truncation. See [Troubleshooting](#troubleshooting) for more details.
+
 ### 4. `list_urls`
 Show all URL patterns with names, patterns, and view handlers (including nested includes).
 
@@ -489,6 +494,36 @@ django-ai-boost --settings myproject.settings --transport sse --port 8001
 ```
 
 **Note:** The stdio transport (default) does not use network ports and will not have this issue.
+
+### Output Truncation in MCP Clients
+
+Some MCP clients have display limits that may truncate long tool outputs:
+
+**PyCharm**: Limits tool output to 2000 lines (~100 Django models with typical field counts)
+**Claude Code**: Truncates at ~700 characters in terminal display
+
+**Symptoms:**
+- Message stating "output truncated due to length"
+- Incomplete model listings when calling `list_models`
+
+**Solution:**
+Use the `app_labels` parameter to filter models by specific Django apps:
+
+```python
+# Instead of listing all models (may truncate):
+list_models()
+
+# Filter by specific app(s):
+list_models(app_labels=["blog"])
+list_models(app_labels=["blog", "auth", "contenttypes"])
+```
+
+**Verification:**
+The truncation is happening client-side, not in the server. To verify:
+1. Count your Django models: `python manage.py shell -c "from django.apps import apps; print(len(apps.get_models()))"`
+2. Estimate lines: models × 20 lines per model ≈ total output lines
+3. If > 2000 lines (PyCharm) or very large (Claude Code), use app filtering
+
 
 ## Requirements
 
