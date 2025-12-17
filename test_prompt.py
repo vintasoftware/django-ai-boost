@@ -5,6 +5,7 @@ Test the search_django_docs prompt.
 Note: FastMCP prompts are designed to be called by MCP clients, not directly in Python.
 This test demonstrates the prompt is properly registered and shows what it would return.
 """
+
 import asyncio
 import os
 import sys
@@ -22,16 +23,14 @@ django.setup()
 
 # Import the server and inspect the prompt
 from django_ai_boost.server_fastmcp import mcp
+from fastmcp.server.middleware import MiddlewareContext
+from mcp.types import ListPromptsRequest
 
 
 async def test_search_django_docs_prompt():
     """Test that the search_django_docs prompt is registered and callable."""
     print("Testing search_django_docs prompt registration...\n")
     print("=" * 80)
-
-    # List all registered prompts - FastMCP 2.13+ requires context parameter
-    from fastmcp.server.middleware import MiddlewareContext
-    from mcp.types import ListPromptsRequest
 
     context = MiddlewareContext(message=ListPromptsRequest())
     prompts = await mcp._list_prompts(context)
