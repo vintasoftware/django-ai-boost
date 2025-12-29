@@ -1,6 +1,6 @@
 [project]
 name = "django-ai-boost"
-version = "0.5.0"
+version = "0.6.0"
 description = "A Model Context Protocol (MCP) server for Django applications, inspired by Laravel Boost"
 readme = "README.md"
 authors = [

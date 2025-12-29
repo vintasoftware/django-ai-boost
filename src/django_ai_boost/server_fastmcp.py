@@ -16,9 +16,6 @@ from fastmcp import FastMCP
 
 logger = logging.getLogger(__name__)
 
-# Initialize FastMCP server
-mcp = FastMCP("Django AI Boost Server")
-
 
 def initialize_django(settings_module: str | None = None) -> None:
     """Initialize Django with the specified settings module."""
@@ -41,7 +38,85 @@ def initialize_django(settings_module: str | None = None) -> None:
     django.setup()
 
 
-@mcp.tool()
+def is_production_environment() -> bool:
+    """Detect if running in production mode (DEBUG=False)."""
+    return not settings.DEBUG
+
+
+def get_auth_token(cli_token: str | None = None) -> str | None:
+    """
+    Get authentication token with precedence: env var > CLI arg.
+    Never log the actual token value.
+    """
+    env_token = os.environ.get("DJANGO_MCP_AUTH_TOKEN")
+
+    if env_token:
+        logger.info("Using authentication token from DJANGO_MCP_AUTH_TOKEN environment variable")
+        return env_token
+
+    if cli_token:
+        logger.info("Using authentication token from --auth-token CLI argument")
+        return cli_token
+
+    return None
+
+
+def create_auth_provider(token: str):
+    """Create StaticTokenVerifier for bearer token authentication."""
+    from fastmcp.server.auth import StaticTokenVerifier
+
+    tokens = {
+        token: {
+            "client_id": "django-mcp-client",
+            "scopes": ["read"],  # All tools are read-only
+        }
+    }
+    return StaticTokenVerifier(tokens=tokens)
+
+
+def validate_and_create_auth(token: str | None, is_production: bool, transport: str):
+    """
+    Validate auth requirements and create provider if needed.
+
+    Returns:
+        StaticTokenVerifier | None
+
+    Raises:
+        ValueError: If production + SSE but no token provided
+    """
+    # Production + SSE requires auth
+    if is_production and transport == "sse" and not token:
+        raise ValueError(
+            "Production mode detected (DEBUG=False) with SSE transport but no authentication token provided.\n"
+            "For security, authentication is required in production.\n"
+            "Please set DJANGO_MCP_AUTH_TOKEN environment variable or use --auth-token argument.\n"
+            "Alternatively, use --transport stdio for local-only access."
+        )
+
+    # No token configured
+    if not token:
+        if is_production and transport == "stdio":
+            logger.warning(
+                "Running in production mode (DEBUG=False) with stdio transport. "
+                "Stdio transport has no authentication. Ensure this is only accessible locally."
+            )
+        return None
+
+    # Token with stdio - warn but allow
+    if transport != "sse":
+        logger.warning(
+            "Authentication token provided but transport is '%s'. "
+            "Authentication only works with SSE transport (--transport sse). "
+            "Token will be ignored.",
+            transport
+        )
+        return None
+
+    # Valid: token + SSE
+    logger.info("Authentication enabled with bearer token for SSE transport")
+    return create_auth_provider(token)
+
+
 async def application_info() -> dict[str, Any]:
     """
     Get Django application information including versions, installed apps, and database configuration.
@@ -70,7 +145,6 @@ async def application_info() -> dict[str, Any]:
     }
 
 
-@mcp.tool()
 async def get_setting(key: str) -> Any:
     """
     Get a Django setting value using dot notation.
@@ -106,7 +180,6 @@ async def get_setting(key: str) -> Any:
         return {"error": f"Error retrieving setting: {str(e)}"}
 
 
-@mcp.tool()
 async def list_models(app_labels: list[str] | None = None) -> dict[str, Any]:
     """
     List all Django models with their fields, types, and relationships.
@@ -174,7 +247,6 @@ async def list_models(app_labels: list[str] | None = None) -> dict[str, Any]:
     }
 
 
-@mcp.tool()
 async def list_urls() -> list[dict[str, Any]]:
     """
     List all URL patterns in the Django project.
@@ -224,7 +296,6 @@ async def list_urls() -> list[dict[str, Any]]:
     return url_patterns
 
 
-@mcp.tool()
 async def database_schema() -> dict[str, Any]:
     """
     Get the complete database schema including tables, columns, indexes, and foreign keys.
@@ -293,7 +364,6 @@ async def database_schema() -> dict[str, Any]:
     return await get_schema()
 
 
-@mcp.tool()
 async def list_migrations() -> list[dict[str, Any]]:
     """
     List all migrations and their application status.
@@ -336,7 +406,6 @@ async def list_migrations() -> list[dict[str, Any]]:
     return await get_migrations()
 
 
-@mcp.tool()
 async def list_management_commands() -> list[dict[str, Any]]:
     """
     List all available Django management commands.
@@ -358,7 +427,6 @@ async def list_management_commands() -> list[dict[str, Any]]:
     return commands_info
 
 
-@mcp.tool()
 async def get_absolute_url(
     app_label: str, model_name: str, pk: int | str
 ) -> dict[str, Any]:
@@ -411,7 +479,6 @@ async def get_absolute_url(
     return await get_url()
 
 
-@mcp.tool()
 async def reverse_url(
     url_name: str, args: list[Any] | None = None, kwargs: dict[str, Any] | None = None
 ) -> dict[str, Any]:
@@ -447,7 +514,6 @@ async def reverse_url(
         return {"error": f"Error reversing URL: {str(e)}"}
 
 
-@mcp.tool()
 async def query_model(
     app_label: str,
     model_name: str,
@@ -555,7 +621,6 @@ async def query_model(
     return await execute_query()
 
 
-@mcp.tool()
 async def run_check(
     app_labels: list[str] | None = None,
     tags: list[str] | None = None,
@@ -676,7 +741,6 @@ async def run_check(
     return await execute_checks()
 
 
-@mcp.prompt()
 async def search_django_docs(topic: str) -> str:
     """
     Generate a prompt to help search for specific topics in Django documentation.
@@ -718,6 +782,7 @@ def run_server(
     transport: str = "stdio",
     host: str = "127.0.0.1",
     port: int = 8000,
+    auth_token: str | None = None,
 ):
     """
     Run the Django MCP server.
@@ -725,17 +790,42 @@ def run_server(
     Args:
         settings_module: Django settings module path
         transport: Transport type (stdio or sse)
-        host: Host to bind to for SSE transport (default: 127.0.0.1)
-        port: Port to bind to for SSE transport (default: 8000)
+        host: Host to bind to for SSE transport
+        port: Port to bind to for SSE transport
+        auth_token: Bearer token for authentication (optional)
     """
     # Initialize Django before starting the server
     initialize_django(settings_module)
 
-    # Run the FastMCP server
+    # Determine auth requirements
+    token = get_auth_token(auth_token)
+    is_production = is_production_environment()
+    auth_provider = validate_and_create_auth(token, is_production, transport)
+
+    # Create FastMCP server instance with auth
+    mcp_server = FastMCP("Django AI Boost Server", auth=auth_provider)
+
+    # Register all tools
+    mcp_server.tool()(application_info)
+    mcp_server.tool()(get_setting)
+    mcp_server.tool()(list_models)
+    mcp_server.tool()(list_urls)
+    mcp_server.tool()(database_schema)
+    mcp_server.tool()(list_migrations)
+    mcp_server.tool()(list_management_commands)
+    mcp_server.tool()(get_absolute_url)
+    mcp_server.tool()(reverse_url)
+    mcp_server.tool()(query_model)
+    mcp_server.tool()(run_check)
+
+    # Register prompts
+    mcp_server.prompt()(search_django_docs)
+
+    # Run the server
     if transport == "sse":
-        mcp.run(transport=transport, host=host, port=port)
+        mcp_server.run(transport=transport, host=host, port=port)
     else:
-        mcp.run(transport=transport)
+        mcp_server.run(transport=transport)
 
 
 if __name__ == "__main__":

@@ -12,6 +12,8 @@ A Model Context Protocol (MCP) server for developing Django applications, inspir
   - [For End Users](#for-end-users)
   - [For Development](#for-development)
 - [Usage](#usage)
+  - [Running the Server](#running-the-server)
+  - [Authentication](#authentication)
 - [AI Tools Setup](#ai-tools-setup)
   - [Cursor](#cursor)
   - [Claude Desktop](#claude-desktop)
@@ -31,10 +33,11 @@ A Model Context Protocol (MCP) server for developing Django applications, inspir
 
 ## Features
 
- **Project Discovery**: List models, URLs, and management commands
+- **Project Discovery**: List models, URLs, and management commands
 - **Database Introspection**: View schema, migrations, and relationships
 - **Configuration Access**: Query Django settings with dot notation
 - **Log Reading**: Access recent application logs with filtering
+- **Production-Ready Authentication**: Bearer token authentication for secure deployments
 - **Read-Only**: All tools are safe, read-only operations
 - **Fast**: Built on [FastMCP](https://gofastmcp.com/) for efficient async operations
 
@@ -111,6 +114,103 @@ django-ai-boost --settings myproject.settings --transport sse --host 0.0.0.0 --p
 ```
 
 **Note:** The stdio transport (default) communicates via standard input/output and does not use network ports. The `--port` and `--host` options only apply when using `--transport sse`.
+
+### Authentication
+
+Django AI Boost supports bearer token authentication for secure production deployments when using SSE transport.
+
+#### Quick Start
+
+**Set authentication token (recommended for production):**
+```bash
+export DJANGO_MCP_AUTH_TOKEN="your-secret-token"
+django-ai-boost --settings myproject.settings --transport sse
+```
+
+**Or use CLI argument:**
+```bash
+django-ai-boost --settings myproject.settings --transport sse --auth-token "your-secret-token"
+```
+
+#### How It Works
+
+- **Automatic Production Mode**: When Django's `DEBUG=False` and using SSE transport, authentication is **automatically required**
+- **Token Precedence**: Environment variable takes precedence over CLI argument for security
+- **Transport Support**:
+  - ✅ **SSE Transport**: Full authentication support (HTTP-based)
+  - ❌ **Stdio Transport**: No authentication (local-only, trusted environments)
+
+#### Production Deployment
+
+When running in production (DEBUG=False) with SSE transport, you **must** provide an authentication token:
+
+```bash
+# This will fail without a token
+django-ai-boost --settings myproject.production_settings --transport sse
+# Error: Production mode detected but no authentication token provided
+
+# This works
+export DJANGO_MCP_AUTH_TOKEN="strong-secret-token"
+django-ai-boost --settings myproject.production_settings --transport sse
+# Authentication enabled with bearer token for SSE transport
+```
+
+#### Security Best Practices
+
+1. **Generate strong tokens**:
+   ```bash
+   python -c "import secrets; print(secrets.token_urlsafe(32))"
+   ```
+
+2. **Never commit tokens** to version control
+
+3. **Use environment variables** in production (not CLI arguments)
+
+4. **Rotate tokens periodically**
+
+5. **Use HTTPS** with a reverse proxy for external access
+
+#### Client Configuration with Authentication
+
+When using authentication, configure your MCP clients to include the token:
+
+**Cursor / Claude Desktop:**
+```json
+{
+  "mcpServers": {
+    "django-ai-boost": {
+      "command": "django-ai-boost",
+      "args": ["--settings", "myproject.settings", "--transport", "sse"],
+      "env": {
+        "DJANGO_MCP_AUTH_TOKEN": "your-secret-token",
+        "DJANGO_SETTINGS_MODULE": "myproject.settings",
+        "PYTHONPATH": "/path/to/your/django/project"
+      }
+    }
+  }
+}
+```
+
+**Testing with curl:**
+```bash
+# Without auth - fails
+curl http://127.0.0.1:8000/sse
+
+# With correct token - works
+curl -H "Authorization: Bearer your-secret-token" http://127.0.0.1:8000/sse
+```
+
+#### Troubleshooting Authentication
+
+**"Production mode detected but no authentication token provided"**
+- Set `DJANGO_MCP_AUTH_TOKEN` environment variable or use `--auth-token`
+
+**"Authentication token provided but transport is 'stdio'"**
+- Authentication only works with `--transport sse`. Use SSE transport for authenticated access.
+
+**"Running in production mode with stdio transport"**
+- This is OK for local/trusted environments, but stdio has no authentication capability
+- For remote access, use `--transport sse` with authentication
 
 ## AI Tools Setup
 
