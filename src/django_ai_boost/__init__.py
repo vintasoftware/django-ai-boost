@@ -28,6 +28,12 @@ def main() -> None:
         default=8000,
         help="Port to bind to for SSE transport (default: 8000)",
     )
+    parser.add_argument(
+        "--auth-token",
+        default=None,
+        help="Bearer token for authentication (can also use DJANGO_MCP_AUTH_TOKEN env var). "
+             "Required in production (DEBUG=False) when using SSE transport.",
+    )
 
     args = parser.parse_args()
 
@@ -36,4 +42,5 @@ def main() -> None:
         transport=args.transport,
         host=args.host,
         port=args.port,
+        auth_token=args.auth_token,
     )
