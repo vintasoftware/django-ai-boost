@@ -51,7 +51,9 @@ def get_auth_token(cli_token: str | None = None) -> str | None:
     env_token = os.environ.get("DJANGO_MCP_AUTH_TOKEN")
 
     if env_token:
-        logger.info("Using authentication token from DJANGO_MCP_AUTH_TOKEN environment variable")
+        logger.info(
+            "Using authentication token from DJANGO_MCP_AUTH_TOKEN environment variable"
+        )
         return env_token
 
     if cli_token:
@@ -108,7 +110,7 @@ def validate_and_create_auth(token: str | None, is_production: bool, transport: 
             "Authentication token provided but transport is '%s'. "
             "Authentication only works with SSE transport (--transport sse). "
             "Token will be ignored.",
-            transport
+            transport,
         )
         return None
 
@@ -777,6 +779,36 @@ Please provide clear, actionable information with direct links to the official d
     return prompt
 
 
+TOOLS = [
+    application_info,
+    get_setting,
+    list_models,
+    list_urls,
+    database_schema,
+    list_migrations,
+    list_management_commands,
+    get_absolute_url,
+    reverse_url,
+    query_model,
+    run_check,
+]
+
+PROMPTS = [
+    search_django_docs,
+]
+
+
+def register_tools(mcp_server: FastMCP) -> None:
+    """
+    Register all the Tools and Prompts
+    """
+    for fn in TOOLS:
+        mcp_server.tool()(fn)
+
+    for fn in PROMPTS:
+        mcp_server.prompt()(fn)
+
+
 def run_server(
     settings_module: str | None = None,
     transport: str = "stdio",
@@ -805,21 +837,8 @@ def run_server(
     # Create FastMCP server instance with auth
     mcp_server = FastMCP("Django AI Boost Server", auth=auth_provider)
 
-    # Register all tools
-    mcp_server.tool()(application_info)
-    mcp_server.tool()(get_setting)
-    mcp_server.tool()(list_models)
-    mcp_server.tool()(list_urls)
-    mcp_server.tool()(database_schema)
-    mcp_server.tool()(list_migrations)
-    mcp_server.tool()(list_management_commands)
-    mcp_server.tool()(get_absolute_url)
-    mcp_server.tool()(reverse_url)
-    mcp_server.tool()(query_model)
-    mcp_server.tool()(run_check)
-
-    # Register prompts
-    mcp_server.prompt()(search_django_docs)
+    # Register all tools and prompts
+    register_tools(mcp_server)
 
     # Run the server
     if transport == "sse":
