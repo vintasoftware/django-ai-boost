@@ -89,10 +89,28 @@ def test_validation_logic():
     print(f"   Prod+SSE+token: {type(result).__name__ if result else None}")
     assert result is not None, "Should create auth provider"
 
-    # Prod mode, token, stdio - Warning but OK
-    result = validate_and_create_auth("token", True, "stdio")
-    print(f"   Prod+stdio+token: {result} (should warn)")
-    assert result is None, "Should return None (auth doesn't work with stdio)"
+    # Dev mode, token, SSE - OK (creates provider)
+    result = validate_and_create_auth("token", False, "sse")
+    print(f"   Dev+SSE+token: {type(result).__name__ if result else None}")
+    assert result is not None, "Should create auth provider in dev mode too"
+
+    # Prod mode, token, stdio - ERROR
+    try:
+        result = validate_and_create_auth("token", True, "stdio")
+        print(f"   Prod+stdio+token: Should have raised error!")
+        assert False, "Should have raised ValueError"
+    except ValueError as e:
+        print(f"   Prod+stdio+token: Raised ValueError ✓")
+        assert "Bearer tokens only work with SSE transport" in str(e), "Error message should mention SSE requirement"
+
+    # Dev mode, token, stdio - ERROR (same as prod)
+    try:
+        result = validate_and_create_auth("token", False, "stdio")
+        print(f"   Dev+stdio+token: Should have raised error!")
+        assert False, "Should have raised ValueError"
+    except ValueError as e:
+        print(f"   Dev+stdio+token: Raised ValueError ✓")
+        assert "Bearer tokens only work with SSE transport" in str(e), "Error message should mention SSE requirement"
 
     # Prod mode, no token, SSE - ERROR
     try:

@@ -139,6 +139,7 @@ django-ai-boost --settings myproject.settings --transport sse --auth-token "your
 - **Transport Support**:
   - ✅ **SSE Transport**: Full authentication support (HTTP-based)
   - ❌ **Stdio Transport**: No authentication (local-only, trusted environments)
+- **Error on Mismatch**: If you provide `--auth-token` with `--transport stdio`, the server will exit with an error to prevent false security assumptions
 
 #### Production Deployment
 
@@ -206,7 +207,9 @@ curl -H "Authorization: Bearer your-secret-token" http://127.0.0.1:8000/sse
 - Set `DJANGO_MCP_AUTH_TOKEN` environment variable or use `--auth-token`
 
 **"Authentication token provided but transport is 'stdio'"**
-- Authentication only works with `--transport sse`. Use SSE transport for authenticated access.
+- **This is now an error** that stops the server from starting
+- Authentication only works with `--transport sse`
+- Either use `--transport sse` with your token, or remove the `--auth-token` argument for stdio
 
 **"Running in production mode with stdio transport"**
 - This is OK for local/trusted environments, but stdio has no authentication capability
