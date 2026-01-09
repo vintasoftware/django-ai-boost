@@ -104,15 +104,16 @@ def validate_and_create_auth(token: str | None, is_production: bool, transport: 
             )
         return None
 
-    # Token with stdio - warn but allow
+    # Token with non-SSE transport - error
     if transport != "sse":
-        logger.warning(
-            "Authentication token provided but transport is '%s'. "
-            "Authentication only works with SSE transport (--transport sse). "
-            "Token will be ignored.",
-            transport,
+        raise ValueError(
+            f"Authentication token provided but transport is '{transport}'.\n"
+            "Bearer tokens only work with SSE transport.\n"
+            "\n"
+            "Choose one:\n"
+            "  1. Use SSE with authentication: --transport sse --auth-token <token>\n"
+            f"  2. Use {transport} without authentication: --transport {transport} (remove --auth-token)\n"
         )
-        return None
 
     # Valid: token + SSE
     logger.info("Authentication enabled with bearer token for SSE transport")
@@ -822,8 +823,8 @@ def run_server(
     Args:
         settings_module: Django settings module path
         transport: Transport type (stdio or sse)
-        host: Host to bind to for SSE transport
-        port: Port to bind to for SSE transport
+        host: Host to bind to for SSE transport (default: 127.0.0.1)
+        port: Port to bind to for SSE transport (default: 8000)
         auth_token: Bearer token for authentication (optional)
     """
     # Initialize Django before starting the server
