@@ -65,7 +65,7 @@ def get_auth_token(cli_token: str | None = None) -> str | None:
 
 def create_auth_provider(token: str):
     """Create StaticTokenVerifier for bearer token authentication."""
-    from fastmcp.server.auth import StaticTokenVerifier
+    from fastmcp.server.auth.providers.jwt import StaticTokenVerifier
 
     tokens = {
         token: {
