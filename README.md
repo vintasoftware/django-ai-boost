@@ -463,8 +463,6 @@ Query a Django model with read-only operations using the Django ORM manager. Thi
 - Get featured posts ordered by date: `filters={"featured": true}`, `order_by=["-created_at"]`
 - Get recent posts with limit: `order_by=["-created_at"]`, `limit=10`
 
-### 11. `read_recent_logs`
-Read recent log entries with optional filtering by log level (DEBUG, INFO, WARNING, ERROR, CRITICAL).
 
 ### Prompts
 
