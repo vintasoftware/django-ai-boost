@@ -1,38 +1,21 @@
 #!/usr/bin/env python
 """Tests for the read_recent_logs tool."""
 
-import asyncio
 import logging
-import os
-import sys
-from pathlib import Path
+from collections.abc import Callable
 from uuid import uuid4
 
-# Add fixtures/testproject to path
-fixtures_path = Path(__file__).parent / "fixtures" / "testproject"
-sys.path.insert(0, str(fixtures_path))
-
-# Set up Django settings to use the test project
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "testproject.settings")
-
-import django
+import pytest
 
 from django_ai_boost.server_fastmcp import read_recent_logs
 
-django.setup()
 
-
-def _flush_root_handlers() -> None:
-    for handler in logging.getLogger().handlers:
-        flush = getattr(handler, "flush", None)
-        if callable(flush):
-            flush()
-
-
-async def test_read_recent_logs_success() -> None:
+async def test_read_recent_logs_success(
+    flush_root_handlers: Callable[[], None],
+) -> None:
     marker = f"read_recent_logs_test_{uuid4().hex}"
     logging.getLogger("django_ai_boost.tests").info(marker)
-    _flush_root_handlers()
+    flush_root_handlers()
 
     result = await read_recent_logs(lines=200, handler_name="file")
 
@@ -64,12 +47,5 @@ async def test_read_recent_logs_invalid_inputs() -> None:
     }
 
 
-async def main() -> None:
-    await test_read_recent_logs_success()
-    await test_read_recent_logs_limit_cap()
-    await test_read_recent_logs_invalid_inputs()
-    print("All read_recent_logs tests passed! ✓")
-
-
 if __name__ == "__main__":
-    asyncio.run(main())
+    raise SystemExit(pytest.main([__file__]))

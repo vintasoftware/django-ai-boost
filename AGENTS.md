@@ -26,22 +26,15 @@ Notes:
 - There is no separate compile/build step for this repository.
 - `ruff` is the formatter and linter source of truth.
 ## 4) Test Commands
-Primary test scripts used in this repo:
-- Run broad integration script:
-  - `uv run python test_server.py`
-- Run query-model tests:
-  - `uv run python test_query_model.py`
-- Run system-check tests:
-  - `uv run python test_run_check.py`
-- Run auth logic tests:
-  - `uv run python test_auth_logic.py`
-- Run prompt-related test script:
-  - `uv run python test_prompt.py`
-Pytest is also available:
-- Run all pytest tests:
+Pytest is the default test runner in this repo:
+- Run all tests:
   - `uv run pytest`
-- Verbose pytest:
+- Verbose mode:
   - `uv run pytest -v`
+- Focus on migrated MCP tool tests:
+  - `uv run pytest test_auth_logic.py test_prompt.py test_query_model.py test_read_recent_logs.py test_run_check.py`
+- Run broad integration coverage:
+  - `uv run pytest test_server.py`
 ### Running a single test (important)
 Use one of these patterns:
 - Single pytest file:
@@ -50,8 +43,6 @@ Use one of these patterns:
   - `uv run pytest test_auth_logic.py::test_validation_logic`
 - Filter by test name substring:
   - `uv run pytest -k validation_logic`
-- Single script-style test file (non-pytest harness):
-  - `uv run python test_query_model.py`
 ## 5) Running the Server Locally
 With env var:
 - `export DJANGO_SETTINGS_MODULE=myproject.settings`
