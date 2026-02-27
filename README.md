@@ -541,14 +541,20 @@ Once configured, you can ask your AI assistant questions like:
 The project includes a comprehensive test suite and a fixture Django project for development:
 
 ```bash
-# Test the MCP server with the fixture project
-uv run python test_server.py
+# Run all tests with pytest
+uv run pytest
 
-# Test the read_recent_logs tool
-uv run python test_read_recent_logs.py
+# Run broad integration coverage
+uv run pytest test_server.py
 
-# Test the query_model tool
-uv run python test_query_model.py
+# Run focused MCP tool tests
+uv run pytest test_auth_logic.py test_prompt.py test_query_model.py test_read_recent_logs.py test_run_check.py
+
+# Run a single test file
+uv run pytest test_query_model.py
+
+# Run a single test function
+uv run pytest test_auth_logic.py::test_validation_logic
 
 # Run the MCP server with the test project
 export PYTHONPATH="${PYTHONPATH}:./fixtures/testproject"
@@ -705,11 +711,14 @@ We welcome contributions from the community! Whether it's bug fixes, new feature
    ```
 3. **Test your changes**:
    ```bash
-   # Run the test suite
-   uv run python test_server.py
+    # Run the test suite
+    uv run pytest
 
-   # Test with the fixture project
-   export PYTHONPATH="${PYTHONPATH}:./fixtures/testproject"
+# Run broad integration coverage
+uv run pytest test_server.py
+
+    # Test with the fixture project
+    export PYTHONPATH="${PYTHONPATH}:./fixtures/testproject"
    uv run django-ai-boost --settings testproject.settings
    ```
 4. **Commit your changes**:

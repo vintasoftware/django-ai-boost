@@ -20,8 +20,14 @@ The `testproject/` directory contains a minimal Django application with:
 From the project root directory:
 
 ```bash
-# Run the test script
-uv run python test_server.py
+# Run all tests
+uv run pytest
+
+# Run broad integration coverage
+uv run pytest test_server.py
+
+# Run focused MCP tool tests
+uv run pytest test_auth_logic.py test_prompt.py test_query_model.py test_read_recent_logs.py test_run_check.py
 ```
 
 This will test all 8 MCP tools:
