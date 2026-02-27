@@ -463,6 +463,29 @@ Query a Django model with read-only operations using the Django ORM manager. Thi
 - Get featured posts ordered by date: `filters={"featured": true}`, `order_by=["-created_at"]`
 - Get recent posts with limit: `order_by=["-created_at"]`, `limit=10`
 
+### 11. `run_check`
+Run Django's system checks to identify potential issues in models, settings, and deployment configuration.
+
+**Arguments:**
+- `app_labels`: Optional list of app labels to check
+- `tags`: Optional list of check tags (e.g., `"models"`, `"compatibility"`)
+- `deploy`: Include deployment checks when `true`
+- `fail_level`: Minimum severity (`"CRITICAL"`, `"ERROR"`, `"WARNING"`, `"INFO"`, `"DEBUG"`)
+- `databases`: Optional list of database aliases to include
+
+### 12. `read_recent_logs`
+Read recent lines from file-based log handlers configured in `LOGGING.handlers`.
+
+**Arguments:**
+- `lines`: Number of lines to return per file (default: `100`, max: `1000`)
+- `handler_name`: Optional handler name to read from a single file handler
+
+**Safety and behavior:**
+- Reads only handlers backed by `*FileHandler` classes
+- Returns structured errors for invalid inputs and missing handlers
+- Uses UTF-8 with safe replacement for undecodable bytes
+- Returns file existence status without modifying files
+
 
 ### Prompts
 
@@ -520,6 +543,9 @@ The project includes a comprehensive test suite and a fixture Django project for
 ```bash
 # Test the MCP server with the fixture project
 uv run python test_server.py
+
+# Test the read_recent_logs tool
+uv run python test_read_recent_logs.py
 
 # Test the query_model tool
 uv run python test_query_model.py
