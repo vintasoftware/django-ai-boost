@@ -22,6 +22,7 @@ from django.apps import apps
 from django.conf import settings
 from django.core.management import get_commands
 from django.db import connection
+from django_ai_boost.server_fastmcp import read_recent_logs
 
 django.setup()
 
@@ -93,12 +94,14 @@ async def test_list_models():
             }
             fields.append(field_info)
 
-        models_info.append({
-            "app": app_label,
-            "model": model_name,
-            "db_table": model._meta.db_table,
-            "fields": fields,
-        })
+        models_info.append(
+            {
+                "app": app_label,
+                "model": model_name,
+                "db_table": model._meta.db_table,
+                "fields": fields,
+            }
+        )
 
     result_all = {
         "total_count": len(models_info),
@@ -129,12 +132,14 @@ async def test_list_models():
             }
             fields.append(field_info)
 
-        blog_models_info.append({
-            "app": app_label,
-            "model": model_name,
-            "db_table": model._meta.db_table,
-            "fields": fields,
-        })
+        blog_models_info.append(
+            {
+                "app": app_label,
+                "model": model_name,
+                "db_table": model._meta.db_table,
+                "fields": fields,
+            }
+        )
 
     result_blog = {
         "total_count": len(blog_models_info),
@@ -163,12 +168,14 @@ async def test_list_models():
             }
             fields.append(field_info)
 
-        filtered_models_info.append({
-            "app": app_label,
-            "model": model_name,
-            "db_table": model._meta.db_table,
-            "fields": fields,
-        })
+        filtered_models_info.append(
+            {
+                "app": app_label,
+                "model": model_name,
+                "db_table": model._meta.db_table,
+                "fields": fields,
+            }
+        )
 
     result_multiple = {
         "total_count": len(filtered_models_info),
@@ -247,16 +254,20 @@ async def test_list_migrations():
             for migration_name in loader.disk_migrations:
                 if migration_name[0] == app_label:
                     is_applied = migration_name in loader.applied_migrations
-                    app_migrations.append({
-                        "name": migration_name[1],
-                        "applied": is_applied,
-                    })
+                    app_migrations.append(
+                        {
+                            "name": migration_name[1],
+                            "applied": is_applied,
+                        }
+                    )
 
             if app_migrations:
-                migrations_info.append({
-                    "app": app_label,
-                    "migrations": sorted(app_migrations, key=lambda x: x["name"]),
-                })
+                migrations_info.append(
+                    {
+                        "app": app_label,
+                        "migrations": sorted(app_migrations, key=lambda x: x["name"]),
+                    }
+                )
         return migrations_info
 
     migrations_info = await get_migrations()
@@ -364,6 +375,29 @@ async def test_reverse_url():
     }
 
 
+async def test_read_recent_logs():
+    """Test read_recent_logs tool."""
+    print("\n9. Testing read_recent_logs:")
+    print("-" * 60)
+
+    result = await read_recent_logs(lines=10, handler_name="file")
+
+    if "error" in result:
+        print(f"Error: {result['error']}")
+        return result
+
+    print(f"Available file handlers: {', '.join(result['available_handlers'])}")
+    print(f"Returned lines per file: {result['returned_lines']}")
+
+    if result["logs"]:
+        first_log = result["logs"][0]
+        print(f"Handler: {first_log['handler']}")
+        print(f"Path: {first_log['path']}")
+        print(f"Line count returned: {first_log['line_count']}")
+
+    return result
+
+
 async def test_all_tools():
     """Test all MCP tools."""
     print("=" * 60)
@@ -379,6 +413,7 @@ async def test_all_tools():
         await test_list_management_commands()
         await test_get_absolute_url()
         await test_reverse_url()
+        await test_read_recent_logs()
 
         print("\n" + "=" * 60)
         print("All tools tested successfully! ✓")
