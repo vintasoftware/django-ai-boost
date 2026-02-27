@@ -3,7 +3,9 @@ from __future__ import annotations
 import logging
 import os
 import sys
-from typing import Any
+from collections import deque
+from pathlib import Path
+from typing import Any, Literal
 
 import django
 from asgiref.sync import sync_to_async
@@ -383,12 +385,12 @@ async def list_migrations() -> list[dict[str, Any]]:
 
         migrations_info = []
 
-        for app_label in loader.migrated_apps:
+        for app_label in loader.migrated_apps or []:
             app_migrations = []
 
-            for migration_name in loader.disk_migrations:
+            for migration_name in loader.disk_migrations or {}:
                 if migration_name[0] == app_label:
-                    is_applied = migration_name in loader.applied_migrations
+                    is_applied = migration_name in (loader.applied_migrations or set())
                     app_migrations.append(
                         {
                             "name": migration_name[1],
@@ -744,6 +746,104 @@ async def run_check(
     return await execute_checks()
 
 
+async def read_recent_logs(
+    lines: int = 100,
+    handler_name: str | None = None,
+) -> dict[str, Any]:
+    """
+    Read recent lines from file-based Django log handlers safely.
+
+    Args:
+        lines: Number of recent lines to read per handler (default: 100, max: 1000)
+        handler_name: Optional handler name to target one configured handler
+
+    Returns:
+        Dictionary containing discovered handlers and recent log lines, or an error message.
+    """
+
+    @sync_to_async
+    def read_logs():
+        max_lines = 1000
+
+        if lines < 1:
+            return {"error": "lines must be greater than 0"}
+
+        actual_lines = min(lines, max_lines)
+        logging_config = getattr(settings, "LOGGING", {}) or {}
+        handlers_config = logging_config.get("handlers", {})
+
+        file_handlers: dict[str, Path] = {}
+
+        for name, config in handlers_config.items():
+            if not isinstance(config, dict):
+                continue
+
+            handler_class = str(config.get("class", ""))
+            filename = config.get("filename")
+
+            if not filename or not handler_class.endswith("FileHandler"):
+                continue
+
+            file_handlers[name] = Path(str(filename)).expanduser().resolve()
+
+        if not file_handlers:
+            return {"error": "No file-based log handlers found in LOGGING settings"}
+
+        if handler_name:
+            if handler_name not in file_handlers:
+                return {
+                    "error": f"Handler '{handler_name}' not found or is not a file-based handler"
+                }
+            target_handlers = {handler_name: file_handlers[handler_name]}
+        else:
+            target_handlers = file_handlers
+
+        logs: list[dict[str, Any]] = []
+
+        for name, file_path in sorted(target_handlers.items()):
+            log_result: dict[str, Any] = {
+                "handler": name,
+                "path": str(file_path),
+                "exists": file_path.exists(),
+                "lines": [],
+                "line_count": 0,
+            }
+
+            if not file_path.exists():
+                logs.append(log_result)
+                continue
+
+            if not file_path.is_file():
+                log_result["error"] = "Configured log path is not a file"
+                logs.append(log_result)
+                continue
+
+            try:
+                recent_lines: deque[str] = deque(maxlen=actual_lines)
+                with file_path.open(
+                    "r", encoding="utf-8", errors="replace"
+                ) as log_file:
+                    for line in log_file:
+                        recent_lines.append(line.rstrip("\n"))
+
+                log_result["lines"] = list(recent_lines)
+                log_result["line_count"] = len(recent_lines)
+            except Exception as e:
+                log_result["error"] = f"Error reading log file: {str(e)}"
+
+            logs.append(log_result)
+
+        return {
+            "requested_lines": lines,
+            "returned_lines": actual_lines,
+            "handler_filter": handler_name,
+            "available_handlers": sorted(file_handlers.keys()),
+            "logs": logs,
+        }
+
+    return await read_logs()
+
+
 async def search_django_docs(topic: str) -> str:
     """
     Generate a prompt to help search for specific topics in Django documentation.
@@ -792,6 +892,7 @@ TOOLS = [
     reverse_url,
     query_model,
     run_check,
+    read_recent_logs,
 ]
 
 PROMPTS = [
@@ -812,7 +913,7 @@ def register_tools(mcp_server: FastMCP) -> None:
 
 def run_server(
     settings_module: str | None = None,
-    transport: str = "stdio",
+    transport: Literal["stdio", "sse"] = "stdio",
     host: str = "127.0.0.1",
     port: int = 8000,
     auth_token: str | None = None,
@@ -843,9 +944,9 @@ def run_server(
 
     # Run the server
     if transport == "sse":
-        mcp_server.run(transport=transport, host=host, port=port)
+        mcp_server.run(transport="sse", host=host, port=port)
     else:
-        mcp_server.run(transport=transport)
+        mcp_server.run(transport="stdio")
 
 
 if __name__ == "__main__":
