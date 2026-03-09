@@ -754,7 +754,7 @@ async def read_recent_logs(
     Read recent lines from file-based Django log handlers safely.
 
     Args:
-        lines: Number of recent lines to read per handler (default: 100, max: 1000)
+        lines: Number of recent lines to read per handler (default: 100, cap set via DJANGO_MCP_MAX_LOG_LINES env var, default cap: 5000)
         handler_name: Optional handler name to target one configured handler
 
     Returns:
@@ -763,7 +763,7 @@ async def read_recent_logs(
 
     @sync_to_async
     def read_logs():
-        max_lines = 1000
+        max_lines = int(os.environ.get("DJANGO_MCP_MAX_LOG_LINES", 5000))
 
         if lines < 1:
             return {"error": "lines must be greater than 0"}
@@ -773,20 +773,21 @@ async def read_recent_logs(
         handlers_config = logging_config.get("handlers", {})
 
         file_handlers: dict[str, Path] = {}
+        path_errors: dict[str, str] = {}
 
         for name, config in handlers_config.items():
-            if not isinstance(config, dict):
-                continue
-
             handler_class = str(config.get("class", ""))
             filename = config.get("filename")
 
             if not filename or not handler_class.endswith("FileHandler"):
                 continue
 
-            file_handlers[name] = Path(str(filename)).expanduser().resolve()
+            try:
+                file_handlers[name] = Path(str(filename)).expanduser().resolve()
+            except Exception as e:
+                path_errors[name] = str(e)
 
-        if not file_handlers:
+        if not file_handlers and not path_errors:
             return {"error": "No file-based log handlers found in LOGGING settings"}
 
         if handler_name:
@@ -799,6 +800,9 @@ async def read_recent_logs(
             target_handlers = file_handlers
 
         logs: list[dict[str, Any]] = []
+
+        for name, error_msg in sorted(path_errors.items()):
+            logs.append({"handler": name, "error": f"Error resolving log file path: {error_msg}"})
 
         for name, file_path in sorted(target_handlers.items()):
             log_result: dict[str, Any] = {
@@ -944,9 +948,9 @@ def run_server(
 
     # Run the server
     if transport == "sse":
-        mcp_server.run(transport="sse", host=host, port=port)
+        mcp_server.run(transport=transport, host=host, port=port)
     else:
-        mcp_server.run(transport="stdio")
+        mcp_server.run(transport=transport)
 
 
 if __name__ == "__main__":
