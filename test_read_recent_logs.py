@@ -29,7 +29,8 @@ async def test_read_recent_logs_success(
     assert any(marker in line for line in result["logs"][0]["lines"])
 
 
-async def test_read_recent_logs_limit_cap() -> None:
+async def test_read_recent_logs_limit_cap(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("DJANGO_MCP_MAX_LOG_LINES", "1000")
     result = await read_recent_logs(lines=9999, handler_name="file")
 
     assert "error" not in result

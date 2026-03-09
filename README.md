@@ -477,14 +477,23 @@ Run Django's system checks to identify potential issues in models, settings, and
 Read recent lines from file-based log handlers configured in `LOGGING.handlers`.
 
 **Arguments:**
-- `lines`: Number of lines to return per file (default: `100`, max: `1000`)
+- `lines`: Number of lines to return per file (default: `100`, configurable via `DJANGO_MCP_MAX_LOG_LINES` env var)
 - `handler_name`: Optional handler name to read from a single file handler
 
-**Safety and behavior:**
-- Reads only handlers backed by `*FileHandler` classes
-- Returns structured errors for invalid inputs and missing handlers
-- Uses UTF-8 with safe replacement for undecodable bytes
-- Returns file existence status without modifying files
+> **Note:** This tool reads only file-based handlers (`*FileHandler` classes). If your project logs to the console only, configure a `FileHandler` in your Django `LOGGING` settings so the AI can access log output. Example:
+>
+> ```python
+> LOGGING = {
+>     "version": 1,
+>     "handlers": {
+>         "file": {
+>             "class": "logging.FileHandler",
+>             "filename": "django.log",
+>         },
+>     },
+>     "root": {"handlers": ["file"], "level": "INFO"},
+> }
+> ```
 
 
 ### Prompts
@@ -549,12 +558,6 @@ uv run pytest test_server.py
 
 # Run focused MCP tool tests
 uv run pytest test_auth_logic.py test_prompt.py test_query_model.py test_read_recent_logs.py test_run_check.py
-
-# Run a single test file
-uv run pytest test_query_model.py
-
-# Run a single test function
-uv run pytest test_auth_logic.py::test_validation_logic
 
 # Run the MCP server with the test project
 export PYTHONPATH="${PYTHONPATH}:./fixtures/testproject"
