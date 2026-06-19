@@ -665,7 +665,7 @@ The truncation is happening client-side, not in the server. To verify:
 
 - Python 3.12+
 - Django 4.2+
-- FastMCP 2.12.4+
+- FastMCP 3.2.4+
 
 ## License
 

@@ -4,7 +4,7 @@ Guidance for coding agents working in `django-ai-boost`.
 - Python package: `django-ai-boost`
 - Purpose: MCP server exposing read-only Django introspection tools
 - Runtime: Python `>=3.12`
-- Core deps: `django>=4.2`, `fastmcp>=2.14.5`
+- Core deps: `django>=4.2`, `fastmcp>=3.2.4`
 - Package manager: `uv`
 - Entry point: `django-ai-boost` -> `django_ai_boost:main`
 - Main server module: `src/django_ai_boost/server_fastmcp.py`
